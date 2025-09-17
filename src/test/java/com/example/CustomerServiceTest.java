@@ -18,6 +18,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 public class CustomerServiceTest {
@@ -82,5 +83,52 @@ public class CustomerServiceTest {
         when(customerRepository.save(any(Customer.class))).thenThrow(PersistenceException.class);
 
         assertThrows(DuplicateEmailException.class, () -> customerService.create(dto));
+    }
+
+    @Test
+    void testUpdate_success() {
+        Long id = 1L;
+        Customer existing = new Customer(id, "Old Name", "old@example.com");
+        CustomerDTO updatedDto = new CustomerDTO("New Name", "new@example.com");
+        Customer updatedCustomer = new Customer(id, "New Name", "new@example.com");
+
+        when(customerRepository.findById(id)).thenReturn(Optional.of(existing));
+        when(customerRepository.update(existing)).thenReturn(updatedCustomer);
+
+        Customer result = customerService.update(id, updatedDto);
+
+        assertEquals("New Name", result.getName());
+        assertEquals("new@example.com", result.getEmail());
+    }
+
+    @Test
+    void testUpdate_duplicateEmail() {
+        Long id = 1L;
+        Customer existing = new Customer(id, "Old Name", "old@example.com");
+        CustomerDTO updatedDto = new CustomerDTO("New Name", "new@example.com");
+
+        when(customerRepository.findById(id)).thenReturn(Optional.of(existing));
+        when(customerRepository.update(existing)).thenThrow(PersistenceException.class);
+
+        assertThrows(DuplicateEmailException.class, () -> customerService.update(id, updatedDto));
+    }
+
+    @Test
+    void testDelete_success() {
+        Long id = 1L;
+        Customer customer = new Customer(id, "Delete", "delete@example.com");
+
+        when(customerRepository.findById(id)).thenReturn(Optional.of(customer));
+        doNothing().when(customerRepository).delete(customer);
+
+        customerService.delete(id);
+    }
+
+    @Test
+    void testDelete_notFound() {
+        Long id = 999L;
+        when(customerRepository.findById(id)).thenReturn(Optional.empty());
+
+        assertThrows(CustomerNotFoundException.class, () -> customerService.delete(id));
     }
 }
