@@ -39,7 +39,7 @@ public class CustomerController {
     }
 
     @Delete("/{id}")
-    public HttpResponse<?> delete(@PathVariable Long id) {
+    public HttpResponse<Void> delete(@PathVariable Long id) {
         customerService.delete(id);
         return HttpResponse.noContent();
     }
