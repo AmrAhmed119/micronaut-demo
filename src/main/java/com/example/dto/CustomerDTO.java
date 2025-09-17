@@ -1,6 +1,5 @@
 package com.example.dto;
 
-import io.micronaut.http.annotation.Get;
 import io.micronaut.serde.annotation.Serdeable;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
