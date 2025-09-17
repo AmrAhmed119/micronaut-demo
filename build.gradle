@@ -28,6 +28,7 @@ dependencies {
     runtimeOnly("ch.qos.logback:logback-classic")
     runtimeOnly("com.mysql:mysql-connector-j")
     testImplementation("io.micronaut:micronaut-http-client")
+    testImplementation("org.mockito:mockito-core")
 }
 
 
