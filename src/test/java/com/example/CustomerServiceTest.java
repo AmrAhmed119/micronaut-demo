@@ -4,7 +4,7 @@ import com.example.dto.CustomerDTO;
 import com.example.entity.Customer;
 import com.example.exception.CustomerNotFoundException;
 import com.example.exception.DuplicateEmailException;
-import com.example.repository.CustomerRepository;
+import com.example.repository.CustomerRepositoryFacade;
 import com.example.service.CustomerServiceImpl;
 import jakarta.persistence.PersistenceException;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,7 +24,7 @@ import static org.mockito.Mockito.when;
 class CustomerServiceTest {
 
     @Mock
-    private CustomerRepository customerRepository;
+    private CustomerRepositoryFacade customerRepositoryFacade;
 
     @InjectMocks
     private CustomerServiceImpl customerService;
@@ -40,7 +40,7 @@ class CustomerServiceTest {
                 new Customer(1L, "John Doe", "john@example.com"),
                 new Customer(2L, "Jane Doe", "jane@example.com")
         );
-        when(customerRepository.findAll()).thenReturn(customers);
+        when(customerRepositoryFacade.findAll()).thenReturn(customers);
 
         List<Customer> result = customerService.findAll();
         assertEquals(2, result.size());
@@ -49,7 +49,7 @@ class CustomerServiceTest {
     @Test
     void testFindById_found() {
         Customer customer = new Customer(1L, "John Doe", "john@example.com");
-        when(customerRepository.findById(1L)).thenReturn(Optional.of(customer));
+        when(customerRepositoryFacade.findById(1L)).thenReturn(Optional.of(customer));
 
         Customer result = customerService.findById(1L);
         assertEquals("John Doe", result.getName());
@@ -58,7 +58,7 @@ class CustomerServiceTest {
 
     @Test
     void testFindById_notFound() {
-        when(customerRepository.findById(1L)).thenReturn(Optional.empty());
+        when(customerRepositoryFacade.findById(1L)).thenReturn(Optional.empty());
 
         assertThrows(CustomerNotFoundException.class, () -> customerService.findById(1L));
     }
@@ -68,7 +68,7 @@ class CustomerServiceTest {
         CustomerDTO dto = new CustomerDTO("Alice", "alice@example.com");
         Customer savedCustomer = new Customer(1L, "Alice", "alice@example.com");
 
-        when(customerRepository.save(any(Customer.class))).thenReturn(savedCustomer);
+        when(customerRepositoryFacade.save(any(Customer.class))).thenReturn(savedCustomer);
 
         Customer result = customerService.create(dto);
 
@@ -80,7 +80,7 @@ class CustomerServiceTest {
     void testCreate_duplicateEmail() {
         CustomerDTO dto = new CustomerDTO("Alice", "alice@example.com");
 
-        when(customerRepository.save(any(Customer.class))).thenThrow(PersistenceException.class);
+        when(customerRepositoryFacade.save(any(Customer.class))).thenThrow(PersistenceException.class);
 
         assertThrows(DuplicateEmailException.class, () -> customerService.create(dto));
     }
@@ -92,8 +92,8 @@ class CustomerServiceTest {
         CustomerDTO updatedDto = new CustomerDTO("New Name", "new@example.com");
         Customer updatedCustomer = new Customer(id, "New Name", "new@example.com");
 
-        when(customerRepository.findById(id)).thenReturn(Optional.of(existing));
-        when(customerRepository.update(existing)).thenReturn(updatedCustomer);
+        when(customerRepositoryFacade.findById(id)).thenReturn(Optional.of(existing));
+        when(customerRepositoryFacade.update(existing)).thenReturn(updatedCustomer);
 
         Customer result = customerService.update(id, updatedDto);
 
@@ -107,8 +107,8 @@ class CustomerServiceTest {
         Customer existing = new Customer(id, "Old Name", "old@example.com");
         CustomerDTO updatedDto = new CustomerDTO("New Name", "new@example.com");
 
-        when(customerRepository.findById(id)).thenReturn(Optional.of(existing));
-        when(customerRepository.update(existing)).thenThrow(PersistenceException.class);
+        when(customerRepositoryFacade.findById(id)).thenReturn(Optional.of(existing));
+        when(customerRepositoryFacade.update(existing)).thenThrow(PersistenceException.class);
 
         assertThrows(DuplicateEmailException.class, () -> customerService.update(id, updatedDto));
     }
@@ -118,8 +118,8 @@ class CustomerServiceTest {
         Long id = 1L;
         Customer customer = new Customer(id, "Delete", "delete@example.com");
 
-        when(customerRepository.findById(id)).thenReturn(Optional.of(customer));
-        doNothing().when(customerRepository).delete(customer);
+        when(customerRepositoryFacade.findById(id)).thenReturn(Optional.of(customer));
+        doNothing().when(customerRepositoryFacade).delete(customer);
 
         customerService.delete(id);
         assertTrue(true);
@@ -128,7 +128,7 @@ class CustomerServiceTest {
     @Test
     void testDelete_notFound() {
         Long id = 999L;
-        when(customerRepository.findById(id)).thenReturn(Optional.empty());
+        when(customerRepositoryFacade.findById(id)).thenReturn(Optional.empty());
 
         assertThrows(CustomerNotFoundException.class, () -> customerService.delete(id));
     }
