@@ -9,6 +9,11 @@
 - [Micronaut Gradle Plugin documentation](https://micronaut-projects.github.io/micronaut-gradle-plugin/latest/)
 - [GraalVM Gradle Plugin documentation](https://graalvm.github.io/native-build-tools/latest/gradle-plugin.html)
 - [Shadow Gradle Plugin](https://gradleup.com/shadow/)
+## Feature mockito documentation
+
+- [https://site.mockito.org](https://site.mockito.org)
+
+
 ## Feature serialization-jackson documentation
 
 - [Micronaut Serialization Jackson Core documentation](https://micronaut-projects.github.io/micronaut-serialization/latest/guide/)
