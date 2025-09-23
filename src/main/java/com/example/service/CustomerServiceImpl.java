@@ -4,6 +4,7 @@ import com.example.dto.CustomerDTO;
 import com.example.entity.Customer;
 import com.example.exception.CustomerNotFoundException;
 import com.example.exception.DuplicateEmailException;
+import com.example.mapper.CustomerMapper;
 import com.example.repository.CustomerRepositoryFacade;
 import jakarta.inject.Singleton;
 import jakarta.persistence.PersistenceException;
@@ -14,9 +15,11 @@ import java.util.List;
 public class CustomerServiceImpl implements CustomerService {
 
     private final CustomerRepositoryFacade customerRepositoryFacade;
+    private final CustomerMapper customerMapper;
 
-    public CustomerServiceImpl(CustomerRepositoryFacade customerRepositoryFacade) {
+    public CustomerServiceImpl(CustomerRepositoryFacade customerRepositoryFacade, CustomerMapper customerMapper) {
         this.customerRepositoryFacade = customerRepositoryFacade;
+        this.customerMapper = customerMapper;
     }
 
     @Override
@@ -36,9 +39,8 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public Customer create(CustomerDTO customer) {
-        Customer newCustomer = new Customer(null, customer.getName(), customer.getEmail());
         try {
-            return customerRepositoryFacade.save(newCustomer);
+            return customerRepositoryFacade.save(customerMapper.toEntity(customer));
         } catch (PersistenceException e) {
             throw new DuplicateEmailException(customer.getEmail());
         }
