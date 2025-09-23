@@ -4,6 +4,7 @@ import com.example.dto.CustomerDTO;
 import com.example.entity.Customer;
 import com.example.exception.CustomerNotFoundException;
 import com.example.exception.DuplicateEmailException;
+import com.example.mapper.CustomerMapper;
 import com.example.repository.CustomerRepositoryFacade;
 import com.example.service.CustomerServiceImpl;
 import jakarta.persistence.PersistenceException;
@@ -25,6 +26,9 @@ class CustomerServiceTest {
 
     @Mock
     private CustomerRepositoryFacade customerRepositoryFacade;
+
+    @Mock
+    private CustomerMapper customerMapper;
 
     @InjectMocks
     private CustomerServiceImpl customerService;
@@ -68,6 +72,7 @@ class CustomerServiceTest {
         CustomerDTO dto = new CustomerDTO("Alice", "alice@example.com");
         Customer savedCustomer = new Customer(1L, "Alice", "alice@example.com");
 
+        when(customerMapper.toEntity(dto)).thenReturn(savedCustomer);
         when(customerRepositoryFacade.save(any(Customer.class))).thenReturn(savedCustomer);
 
         Customer result = customerService.create(dto);
@@ -80,6 +85,7 @@ class CustomerServiceTest {
     void testCreate_duplicateEmail() {
         CustomerDTO dto = new CustomerDTO("Alice", "alice@example.com");
 
+        when(customerMapper.toEntity(dto)).thenReturn(new Customer(null, "Alice", "alice@example.com"));
         when(customerRepositoryFacade.save(any(Customer.class))).thenThrow(PersistenceException.class);
 
         assertThrows(DuplicateEmailException.class, () -> customerService.create(dto));
